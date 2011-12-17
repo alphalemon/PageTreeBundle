@@ -350,24 +350,32 @@ class AlPageTree
      */
     public function setContents(array $values, $override = false)
     {
-        //if(count($this->contents) > 0 || $override){}
-            foreach($values as $slotName => $contents)
-            {
-                if(array_key_exists($slotName, $this->contents) && $override) unset($this->contents[$slotName]);
+        foreach($values as $slotName => $contents)
+        {
+            if(array_key_exists($slotName, $this->contents) && $override) unset($this->contents[$slotName]);
 
-                if(null !== $contents)
+            if(null !== $contents)
+            {
+                foreach($contents as $content)
                 {
-                    foreach($contents as $content)
-                    {
-                        $this->addContent($slotName, $content);
-                    }
-                }
-                else
-                {
-                    $this->contents[$slotName] = null;
+                    $this->addContent($slotName, $content);
                 }
             }
-        
+            else
+            {
+                $this->contents[$slotName] = null;
+            }
+        }
+    }
+    
+    /**
+     * Clears the contents for the given slot
+     * 
+     * @param string    $slotName 
+     */
+    public function clearSlotContents($slotName)
+    {
+        $this->contents[$slotName] = array();
     }
     
     /**
