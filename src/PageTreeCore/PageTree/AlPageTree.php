@@ -263,6 +263,7 @@ class AlPageTree
     {
         if($value != "" && !in_array($value, $this->externalStylesheets))
         {
+            
             if(basename($value) == $value)
             {
                 $bundle = ($this->container->hasParameter('al.deploy_bundle')) ? $this->container->getParameter('al.deploy_bundle') : 'ThemeEngineBundle';
@@ -272,7 +273,16 @@ class AlPageTree
             }
             else
             { 
-                $fileName = AlToolkit::locateResource($this->container, $value);
+                // When the whole files in the folder are required, it is needed the path to the web folder
+                if(substr($value, strlen($value) - 1, 1) == '*')
+                {
+                    $bundleName = preg_match('/^@([\w]+)\//', $value, $match);
+                    $fileName = (isset($match[1])) ? AlToolkit::retrieveBundleWebFolder($this->container, $match[1]) . '/*' : '';
+                }
+                else
+                {
+                    $fileName = (strpos($value, 'bundles') === 0) ? $value : AlToolkit::locateResource($this->container, $value);
+                }
             }
             
             $this->externalStylesheets[] = $fileName;
@@ -297,7 +307,15 @@ class AlPageTree
             }
             else
             { 
-                $fileName = AlToolkit::locateResource($this->container, $value); 
+                if(substr($value, strlen($value) - 1, 1) == '*')
+                {
+                    $bundleName = preg_match('/^@([\w]+)\//', $value, $match);
+                    $fileName = (isset($match[1])) ? AlToolkit::retrieveBundleWebFolder($this->container, $match[1]) . '/*' : '';
+                }
+                else
+                {
+                    $fileName = (strpos($value, 'bundles') === 0) ? $value : AlToolkit::locateResource($this->container, $value);
+                }
             }
             
             $this->externalJavascripts[] = $fileName;

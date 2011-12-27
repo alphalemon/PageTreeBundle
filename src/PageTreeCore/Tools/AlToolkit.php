@@ -239,4 +239,16 @@ class AlToolkit
 
         return $text;
     }
+ 
+    /**
+     * Retrieves the mime type for the given resource
+     * 
+     * @param   string $filename
+     * @return string 
+     */
+    public static function mimeContentType($filename)
+    {
+        $result = new \finfo();        
+        return $result->file($filename, FILEINFO_MIME_TYPE);
+    }
 }
