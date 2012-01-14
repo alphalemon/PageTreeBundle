@@ -45,7 +45,7 @@ class AlToolkit
             $application = new Application($kernel);
             $application->setCatchExceptions(false);
             $application->setAutoExit(false);
-
+            
             foreach($commands as $command)
             {
                 if(preg_match('/^cache:clear/', $command)) {
@@ -60,6 +60,7 @@ class AlToolkit
                     return $res;
                 }
             }
+            unset($application);
         }
         
         return false;

@@ -1,0 +1,11 @@
+PageTree:
+  namespace:
+    0:
+      alias: AlphaLemon
+      path: /../vendor/bundles
+    1:
+      alias: PageTreeCore
+      path: /../vendor/bundles/AlphaLemon/PageTreeBundle/src
+  bundle: 
+    class: AlphaLemon\PageTreeBundle\AlphaLemonPageTreeBundle
+    

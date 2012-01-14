@@ -1,5 +1,5 @@
 <?php
-namespace AlphaLemonCmsCore\vendor\Zip;
+namespace AlphaLemon\AlphaLemonCmsBundle\Core\vendor\Zip;
 
 class zipfile
 {
