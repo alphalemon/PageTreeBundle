@@ -14,7 +14,7 @@
  * @license    MIT License
  */
 
-namespace PageTreeCore\Compiler;
+namespace AlphaLemon\PageTreeBundle\Core\Compiler;
 
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

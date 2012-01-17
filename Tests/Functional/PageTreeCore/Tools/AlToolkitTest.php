@@ -15,10 +15,10 @@
  * 
  */
 
-namespace AlphaLemon\PageTreeBundle\Tests\Functional\PageTreeCore\Tools;
+namespace AlphaLemon\PageTreeBundle\Tests\Functional\AlphaLemon\PageTreeBundle\Core\Tools;
 
 use AlphaLemon\PageTreeBundle\Tests\TestCase;
-use PageTreeCore\Tools\AlToolkit;
+use AlphaLemon\PageTreeBundle\Core\Tools\AlToolkit;
 
 
 class AlToolkitTest extends TestCase 

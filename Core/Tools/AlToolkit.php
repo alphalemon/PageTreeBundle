@@ -15,7 +15,7 @@
  * 
  */
 
-namespace PageTreeCore\Tools;
+namespace AlphaLemon\PageTreeBundle\Core\Tools;
 
 use AlphaLemon\PageTreeBundle\Zip;
 use Symfony\Component\HttpKernel\Util\Filesystem;

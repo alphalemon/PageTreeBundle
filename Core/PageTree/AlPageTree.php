@@ -14,10 +14,10 @@
  * @license    MIT License
  */
 
-namespace PageTreeCore\PageTree;
+namespace AlphaLemon\PageTreeBundle\Core\PageTree;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use PageTreeCore\Tools\AlToolkit;
+use AlphaLemon\PageTreeBundle\Core\Tools\AlToolkit;
 
 /**
  * The AlPageTree is the deputated object to describe a website's page. This object stores several information about the web page:
