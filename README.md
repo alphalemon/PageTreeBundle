@@ -22,7 +22,6 @@ Register the PageTreeBundle namespaces in `app/autoload.php`:
     $loader->registerNamespaces(array(
         ...
         'AlphaLemon'                     => __DIR__.'/../vendor/bundles',
-        'PageTreeCore'                   => __DIR__.'/../vendor/bundles/AlphaLemon/PageTreeBundle/src',
     ));
 
 ## Using the object
