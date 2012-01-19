@@ -16,7 +16,6 @@
       "symfony/symfony":  ">=2.0.9,<2.1.0-dev"
   },
   "autoload": {
-    "psr-0": { "PageTreeCore": "vendor/bundles/AlphaLemon/PageTreeBundle/src" }
-  },
-  "target-dir": "AlphaLemon/PageTreeBundle"
+    "psr-0": { "AlphaLemon\\PageTreeBundle": "" }
+  }
 }
