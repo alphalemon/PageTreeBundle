@@ -186,7 +186,7 @@ class AlToolkit
      */ 
     public static function extractZipFile($zipFile, $destinationPath)
     {   
-        $zipLibrary = __DIR__ . "/../../../vendors/Zip/zipfile.php";
+        $zipLibrary = __DIR__ . "/../../vendors/Zip/zipfile.php";
         if(@include($zipLibrary))
         {
             $zip = new \ZipArchive();

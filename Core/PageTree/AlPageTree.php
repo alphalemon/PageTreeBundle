@@ -92,7 +92,7 @@ class AlPageTree
     public function setTemplateName($v)
     {
         $this->templateName = $v;
-        $this->setupSlots();
+        $this->setupPageTree();
     }
 
     public function getTemplateName()
@@ -103,7 +103,7 @@ class AlPageTree
     public function setThemeName($v)
     {
         $this->themeName = $v;
-        $this->setupSlots();
+        $this->setupPageTree();
     }
 
     public function getThemeName()
@@ -446,21 +446,32 @@ class AlPageTree
     }
     
     /**
-     * Instances the AlTemplateSlots derived class for the current themplate
-     * 
+     * Sets up the page tree object for the current template
      */
-    protected function setupSlots()
+    protected function setupPageTree()
     {
-        if($this->themeName != '' && $this->templateName != '')
-        {
+        if($this->themeName != '' && $this->templateName != '') {
             $templateName = \ucfirst($this->templateName);
-            $className = \sprintf('Themes\%s\src\Slots\%s%sSlots', $this->themeName, $this->themeName, $templateName); 
-            if(!\class_exists($className))
-            {
+            $className = \sprintf('Themes\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, $templateName); 
+            if(!\class_exists($className)) {
                 throw new \RuntimeException($this->container->get('translator')->trans('The class %className% does not exist. You must create a [ThemeName][TemplateName]Slots class for each template of your theme.', array('%className%' => $className)));
             }
             
             $this->templateSlots = new $className();
+            
+            $theme = preg_replace('/bundle$/', '', strtolower($this->themeName));
+            
+            $param = sprintf('themes.%s_%s.internal_javascript', $theme, $templateName);
+            if($this->container->hasParameter($param)) $this->appendInternalJavascript($this->container->getParameter($param));
+            
+            $param = sprintf('themes.%s_%s.internal_stylesheet', $theme, $templateName);
+            if($this->container->hasParameter($param)) $this->appendInternalStylesheet($this->container->getParameter($param));
+            
+            $param = sprintf('themes.%s_%s.javascripts', $theme, $templateName);
+            if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
+            
+            $param = sprintf('themes.%s_%s.stylesheets', $theme, $templateName);
+            if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
         }
     }
 }
