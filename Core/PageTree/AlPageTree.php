@@ -4,7 +4,7 @@
  * under the MIT License. In addiction, to use this bundle, you must leave
  * intact this copyright notice.
  *
- * (c) Since 2011 AlphaLemon
+ * Copyright (c) AlphaLemon <webmaster@alphalemon.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -451,8 +451,8 @@ class AlPageTree
     protected function setupPageTree()
     {
         if($this->themeName != '' && $this->templateName != '') {
-            $templateName = \ucfirst($this->templateName);
-            $className = \sprintf('Themes\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, $templateName); 
+            $templateName = $this->templateName;
+            $className = \sprintf('Themes\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, \ucfirst($templateName)); 
             if(!\class_exists($className)) {
                 throw new \RuntimeException($this->container->get('translator')->trans('The class %className% does not exist. You must create a [ThemeName][TemplateName]Slots class for each template of your theme.', array('%className%' => $className)));
             }
@@ -461,6 +461,7 @@ class AlPageTree
             
             $theme = preg_replace('/bundle$/', '', strtolower($this->themeName));
             
+            $templateName = strtolower($templateName);
             $param = sprintf('themes.%s_%s.internal_javascript', $theme, $templateName);
             if($this->container->hasParameter($param)) $this->appendInternalJavascript($this->container->getParameter($param));
             
