@@ -335,8 +335,8 @@ class AlPageTree
             return $this->contents;
         }
 
-        // The designer has requested a non existent slot for the template he/she is designing
-        if(null !== $this->templateSlots && !\array_key_exists($slotName, $this->getSlots()))
+        // A non existent slot has been requested
+        if(null !== $this->templateSlots && !\array_key_exists($slotName, $this->getSlots()) && !array_key_exists($slotName, $this->contents))
         {
             throw new \InvalidArgumentException($this->container->get('translator')->trans('The %slotName% is not part of this template. You can add a new slot in the configure method of the template\'s slot definition, or remove the wrong one from the template itself', array('%slotName%' => $slotName)));
         }
@@ -451,6 +451,7 @@ class AlPageTree
     protected function setupPageTree()
     {
         if($this->themeName != '' && $this->templateName != '') {
+            
             $templateName = $this->templateName;
             $className = \sprintf('Themes\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, \ucfirst($templateName)); 
             if(!\class_exists($className)) {
