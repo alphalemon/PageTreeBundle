@@ -263,7 +263,6 @@ class AlPageTree
     {
         if($value != "" && !in_array($value, $this->externalStylesheets))
         {
-            
             if(basename($value) == $value)
             {
                 $bundle = ($this->container->hasParameter('al.deploy_bundle')) ? $this->container->getParameter('al.deploy_bundle') : 'ThemeEngineBundle';
@@ -453,12 +452,12 @@ class AlPageTree
         if($this->themeName != '' && $this->templateName != '') {
             
             $templateName = $this->templateName;
-            $className = \sprintf('Themes\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, \ucfirst($templateName)); 
+            $className = \sprintf('AlphaLemon\Theme\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, \ucfirst($templateName)); 
             if(!\class_exists($className)) {
                 throw new \RuntimeException($this->container->get('translator')->trans('The class %className% does not exist. You must create a [ThemeName][TemplateName]Slots class for each template of your theme.', array('%className%' => $className)));
             }
             
-            $this->templateSlots = new $className();
+            $this->templateSlots = new $className($this->container);
             
             $theme = preg_replace('/bundle$/', '', strtolower($this->themeName));
             
@@ -474,6 +473,18 @@ class AlPageTree
             
             $param = sprintf('themes.%s_%s.stylesheets', $theme, $templateName);
             if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
+            
+            $kernel = $this->container->get('kernel');
+            foreach ($kernel->getBundles() as $bundle)
+            {
+                $bundleName = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
+                
+                $param = sprintf('%s_required_javascripts', $bundleName); 
+                if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
+
+                $param = sprintf('%s_required_stylesheets', $bundleName); 
+                if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
+            }
         }
     }
 }

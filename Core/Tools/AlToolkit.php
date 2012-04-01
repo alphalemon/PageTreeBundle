@@ -187,7 +187,7 @@ class AlToolkit
     public static function extractZipFile($zipFile, $destinationPath)
     {   
         $zipLibrary = __DIR__ . "/../../vendors/Zip/zipfile.php";
-        if(@include($zipLibrary))
+        if(@require_once($zipLibrary))
         {
             $zip = new \ZipArchive();
             if ($zip->open($zipFile) === true)
@@ -207,7 +207,7 @@ class AlToolkit
             throw new \Exception(sprintf("The zip library cannot be loaded because %s is not a valid path", $zipLibrary));
         }
     }
-  
+    
     /**
      * Slugifies a path
      * 
