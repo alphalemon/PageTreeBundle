@@ -484,6 +484,12 @@ class AlPageTree
 
                 $param = sprintf('%s_required_stylesheets', $bundleName); 
                 if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
+                
+                $param = sprintf('%s_%s_required_javascripts', $bundleName, $templateName); 
+                if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
+
+                $param = sprintf('%s_%s_required_stylesheets', $bundleName, $templateName); 
+                if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
             }
         }
     }

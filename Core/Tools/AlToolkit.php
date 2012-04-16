@@ -18,7 +18,7 @@
 namespace AlphaLemon\PageTreeBundle\Core\Tools;
 
 use AlphaLemon\PageTreeBundle\Zip;
-use Symfony\Component\HttpKernel\Util\Filesystem;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerInterface;
