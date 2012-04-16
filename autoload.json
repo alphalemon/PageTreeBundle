@@ -1,0 +1,7 @@
+{
+    "bundles" : {
+        "AlphaLemon\\PageTreeBundle\\AlphaLemonPageTreeBundle" : {
+            "environments" : "all"
+        }
+    }
+}
