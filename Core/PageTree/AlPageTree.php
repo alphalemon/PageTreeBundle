@@ -41,6 +41,10 @@ class AlPageTree
     protected $externalJavascripts = array();
     protected $internalJavascript = "";
     protected $internalStylesheet = "";
+    protected $externalTemplateStylesheets = array();
+    protected $externalTemplateJavascripts = array();
+    protected $internalTemplateJavascript = "";
+    protected $internalTemplateStylesheet = "";
     protected $contents = array();
     protected $themeName = null;
     protected $templateName = null;
@@ -74,18 +78,42 @@ class AlPageTree
         return $this->internalJavascript;
     }
 
-    public function appendInternalJavascript($v)
-    {
-        $this->internalJavascript .= $v;
-    }
-
     public function getInternalStylesheet()
     {
         return $this->internalStylesheet;
     }
+    
+    public function getExternalTemplateStylesheets()
+    {
+        return $this->externalTemplateStylesheets;
+    }
+
+    public function getExternalTemplateJavascripts()
+    {
+        return $this->externalTemplateJavascripts;
+    }
+
+    public function getInternalTemplateJavascript()
+    {
+        return $this->internalTemplateJavascript;
+    }
+
+    public function getInternalTemplateStylesheet()
+    {
+        return $this->internalTemplateStylesheet;
+    }
+
+    public function appendInternalJavascript($v)
+    {
+        if(!is_string($v)) return;
+        
+        $this->internalJavascript .= $v;
+    }
 
     public function appendInternalStylesheet($v)
     {
+        if(!is_string($v)) return;
+        
         $this->internalStylesheet .= $v;
     }
 
@@ -457,22 +485,32 @@ class AlPageTree
                 throw new \RuntimeException($this->container->get('translator')->trans('The class %className% does not exist. You must create a [ThemeName][TemplateName]Slots class for each template of your theme.', array('%className%' => $className)));
             }
             
-            $this->templateSlots = new $className($this->container);
-            
+            $this->templateSlots = new $className($this->container);            
             $theme = preg_replace('/bundle$/', '', strtolower($this->themeName));
             
-            $templateName = strtolower($templateName);
             $param = sprintf('themes.%s_%s.internal_javascript', $theme, $templateName);
-            if($this->container->hasParameter($param)) $this->appendInternalJavascript($this->container->getParameter($param));
+            if($this->container->hasParameter($param)) {
+                $this->internalTemplateJavascript = $this->container->getParameter($param);
+                $this->appendInternalJavascript($this->internalTemplateJavascript);
+            }
             
             $param = sprintf('themes.%s_%s.internal_stylesheet', $theme, $templateName);
-            if($this->container->hasParameter($param)) $this->appendInternalStylesheet($this->container->getParameter($param));
+            if($this->container->hasParameter($param)) {
+                $this->internalTemplateStylesheet = $this->container->getParameter($param);
+                $this->appendInternalStylesheet($this->internalTemplateStylesheet);
+            }
             
             $param = sprintf('themes.%s_%s.javascripts', $theme, $templateName);
-            if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
+            if($this->container->hasParameter($param)) {
+                $this->externalTemplateJavascripts = $this->container->getParameter($param);
+                $this->addJavascripts($this->externalTemplateJavascripts);
+            }
             
             $param = sprintf('themes.%s_%s.stylesheets', $theme, $templateName);
-            if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
+            if($this->container->hasParameter($param)) {
+                $this->externalTemplateStylesheets = $this->container->getParameter($param);
+                $this->addStylesheets($this->externalTemplateStylesheets);
+            }
             
             $kernel = $this->container->get('kernel');
             foreach ($kernel->getBundles() as $bundle)
