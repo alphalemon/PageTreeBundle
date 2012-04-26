@@ -517,16 +517,16 @@ class AlPageTree
             {
                 $bundleName = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
                 
-                $param = sprintf('%s_required_javascripts', $bundleName); 
+                $param = sprintf('%s.javascripts', $bundleName); 
                 if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
 
-                $param = sprintf('%s_required_stylesheets', $bundleName); 
+                $param = sprintf('%s.stylesheets', $bundleName); 
                 if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
                 
-                $param = sprintf('%s_%s_required_javascripts', $bundleName, $templateName); 
+                $param = sprintf('%s_%s.javascripts', $bundleName, $templateName); 
                 if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
 
-                $param = sprintf('%s_%s_required_stylesheets', $bundleName, $templateName); 
+                $param = sprintf('%s_%s.stylesheets', $bundleName, $templateName); 
                 if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
             }
         }
