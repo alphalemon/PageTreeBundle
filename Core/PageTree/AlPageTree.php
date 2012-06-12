@@ -10,207 +10,123 @@
  * file that was distributed with this source code.
  *
  * For extra documentation and help please visit http://alphalemon.com
- * 
+ *
  * @license    MIT License
  */
 
 namespace AlphaLemon\PageTreeBundle\Core\PageTree;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use AlphaLemon\PageTreeBundle\Core\Tools\AlToolkit;
+use AlphaLemon\ThemeEngineBundle\Core\Template\AlTemplate;
+use AlphaLemon\PageTreeBundle\Core\PageBlocks\AlPageBlocksInterface;
 
 /**
- * The AlPageTree is the deputated object to describe a website's page. This object stores several information about the web page:
+ * The AlPageTree object is responsibile to store and collect all the information required to
+ * display a web page
  *
+ * The collected information are:
  *   - Theme Name
  *   - Template Name
- *   - External stylesheets
- *   - External javascripts
- *   - Internal stylesheets
- *   - Internal javascripts
+ *   - SEO metatags
  *   - Slots
  *   - Contents
- *   - SEO metatags (title, description, keywords)
+ *   - Assets
+ *
+ * @method     AlPageTree getExternalStylesheets() Returns the external stylesheets
+ * @method     AlPageTree getInternalStylesheets() Returns the internal stylesheets
+ * @method     AlPageTree getExternalJavascripts() Returns the external javascripts
+ * @method     AlPageTree getInternalJavascripts() Returns the internal javascripts
+ * @method     AlPageTree getMetaTitle() Returns the seo meta title
+ * @method     AlPageTree getMetaDescription() Returns the seo meta title
+ * @method     AlPageTree getMetaKeywords() Returns Returns the seo meta title
+ * @method     AlPageTree setMetaTitle() Sets the seo meta title
+ * @method     AlPageTree setMetaDescription() Sets the seo meta title
+ * @method     AlPageTree setMetaKeywords() Sets Returns the seo meta title
  *
  * @author AlphaLemon
  */
 class AlPageTree
 {
     protected $container = null;
-    protected $externalStylesheets = array();
-    protected $externalJavascripts = array();
-    protected $internalJavascript = "";
-    protected $internalStylesheet = "";
-    protected $externalTemplateStylesheets = array();
-    protected $externalTemplateJavascripts = array();
-    protected $internalTemplateJavascript = "";
-    protected $internalTemplateStylesheet = "";
-    protected $contents = array();
-    protected $themeName = null;
-    protected $templateName = null;
-    protected $templateSlots = null;
+    protected $template;
+    protected $pageBlocks;
     protected $metaTitle = "";
     protected $metaDescription = "";
     protected $metaKeywords = "";
-    
+    protected $parameterSchema = array('%s.%s_%s');
+
     /**
      * Constructor
-     * 
-     * @param ContainerInterface $container 
+     *
+     * @param ContainerInterface $container
+     * @param AlTemplate $template
+     * @param AlPageBlocksInterface $pageBlocks
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, AlTemplate $template, AlPageBlocksInterface $pageBlocks)
     {
         $this->container = $container;
-    }
-    
-    public function getExternalStylesheets()
-    {
-        return $this->externalStylesheets;
+        $this->template = $template;
+        $this->pageBlocks = $pageBlocks;
     }
 
-    public function getExternalJavascripts()
-    {
-        return $this->externalJavascripts;
-    }
-
-    public function getInternalJavascript()
-    {
-        return $this->internalJavascript;
-    }
-
-    public function getInternalStylesheet()
-    {
-        return $this->internalStylesheet;
-    }
-    
-    public function getExternalTemplateStylesheets()
-    {
-        return $this->externalTemplateStylesheets;
-    }
-
-    public function getExternalTemplateJavascripts()
-    {
-        return $this->externalTemplateJavascripts;
-    }
-
-    public function getInternalTemplateJavascript()
-    {
-        return $this->internalTemplateJavascript;
-    }
-
-    public function getInternalTemplateStylesheet()
-    {
-        return $this->internalTemplateStylesheet;
-    }
-
-    public function appendInternalJavascript($v)
-    {
-        if(!is_string($v)) return;
-        
-        $this->internalJavascript .= $v;
-    }
-
-    public function appendInternalStylesheet($v)
-    {
-        if(!is_string($v)) return;
-        
-        $this->internalStylesheet .= $v;
-    }
-
-    public function setTemplateName($v)
-    {
-        $this->templateName = $v;
-        $this->setupPageTree();
-    }
-
-    public function getTemplateName()
-    {
-        return $this->templateName;
-    }
-
-    public function setThemeName($v)
-    {
-        $this->themeName = $v;
-        $this->setupPageTree();
-    }
-
-    public function getThemeName()
-    {
-        return $this->themeName;
-    }
-    
-    public function setMetaTitle($v)
-    {
-        $this->metaTitle = $v;
-    }
-
-    public function getMetaTitle()
-    {
-        return $this->metaTitle;
-    }
-    
-    public function setMetaDescription($v)
-    {
-        $this->metaDescription = $v;
-    }
-
-    public function getMetaDescription()
-    {
-        return $this->metaDescription;
-    }
-    
-    public function setMetaKeywords($v)
-    {
-        $this->metaKeywords = $v;
-    }
-
-    public function getMetaKeywords()
-    {
-        return $this->metaKeywords;
-    }
-    
     /**
-     * Returns the web path of each given stylesheet to be loaded by the browser:
-     * 
-     *      @AlphaLemonThemeBundle/Resources/public/css/screen.css
-     *      /path/to/Themes/AlphaLemonThemeBundle/Resources/public/css/screen.css
-     * 
-     * is converted as follows:
-     * 
-     *      /bundles/alphalemontheme/css/screen.css
-     * 
-     * @return  string 
+     * Sets the template object
+     *
+     * @param AlTemplate $v
+     * @return \AlphaLemon\PageTreeBundle\Core\PageTree\AlPageTree
      */
-    public function getExternalStylesheetsForWeb()
+    public function setTemplate(AlTemplate $v)
     {
-        return $this->setAssetsForWeb($this->externalStylesheets);
+        $this->template = $v;
+
+        return $this;
     }
-    
+
     /**
-     * Returns the web path of each given javascript to be loaded by the browser:
-     * 
-     *      @AlphaLemonThemeBundle/Resources/public/js/screen.js
-     *      /path/to/Themes/AlphaLemonThemeBundle/Resources/public/js/screen.js
-     * 
-     * is converted as follows:
-     * 
-     *      /bundles/alphalemontheme/js/screen.js
-     * 
-     * @return  string 
+     * Sets the pageBlocks object
+     *
+     * @param AlPageBlocksInterface $v
+     * @return \AlphaLemon\PageTreeBundle\Core\PageTree\AlPageTree
      */
-    public function getExternalJavascriptsForWeb()
+    public function setPageBlocks(AlPageBlocksInterface $v)
     {
-        return $this->setAssetsForWeb($this->externalJavascripts);
+        $this->pageBlocks = $v;
+
+        return $this;
     }
-    
+
     /**
-     * Sets the metatags. Valid keys are: 
-     *  
+     * Returns the current template object
+     *
+     * @return AlTemplate
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    /**
+     * Returns the current pageBlocks object
+     *
+     * @return AlPageBlocksInterface
+     */
+    public function getPageBlocks()
+    {
+        return $this->pageBlocks;
+    }
+
+
+    /**
+     * Sets the page metatags
+     *
+     *
+     * The metatags array could have the following keys:
+     *
      *      - title
      *      - description
      *      - keywords
-     * 
-     * @param array $metatags 
+     *
+     * @param array $metatags
      */
     public function setMetatags(array $metatags)
     {
@@ -220,315 +136,131 @@ class AlPageTree
     }
 
     /**
-     * Returns the template's slots
-     * 
-     * @return array 
+     * Defines the methods to manage assets and metatags
+     *
+     * @param string $name the method name
+     * @param array $params the values to pass to the called method
+     *
+     * @return \AlphaLemon\PageTreeBundle\Core\PageTree\AlPageTree
      */
-    public function getSlots()
+    public function __call($name, $params)
     {
-        return (null !== $this->templateSlots) ? $this->templateSlots->getSlots() : array();;
-    }
-
-    /**
-     * Returns a slot by its name
-     * 
-     * @return array 
-     */
-    public function getSlot($slotName)
-    {
-        if(null === $this->templateSlots)
+        if(preg_match('/^(get)?(External)?([Styleshee|Javascrip]+ts)$/', $name, $matches))
         {
-            return null;
+            return $this->getAssets($matches[0], strtolower($matches[3]), strtolower($matches[2]));
         }
 
-        $slots = $this->getSlots();
-        if(!\array_key_exists($slotName, $slots))
+        if(preg_match('/^(get)?(Internal)?([Styleshee|Javascrip]+ts)$/', $name, $matches))
         {
-            return null;
+            return implode("", $this->getAssets($matches[0], strtolower($matches[3]), strtolower($matches[2])));
         }
 
-        return $slots[$slotName];
-    }
+        if(preg_match('/^(get)?(Meta)?([Title|Description|Keywords])$/', $name, $matches))
+        {
+            $property = strtolower($matches[2]) . $matches[3];
 
-    /**
-     * Adds some external stylesheets
-     * 
-     * @param array $value 
-     */
-    public function addStylesheets(array $values)
-    {
-        if(null !== $values)
-        {
-            foreach($values as $stylesheetJavascript)
-            {
-                $this->addStylesheet($stylesheetJavascript);
-            }
+            return $this->$property;
         }
-    }
-    
-    /**
-     * Adds some external javascripts
-     * 
-     * @param array $value 
-     */
-    public function addJavascripts(array $values)
-    {
-        if(null !== $values)
+
+        if(preg_match('/^(set)?(Meta)?([Title|Description|Keywords])$/', $name, $matches))
         {
-            foreach($values as $externalJavascript)
-            {
-                $this->addJavascript($externalJavascript);
-            }
+            $this->$property = $params[0];
+
+            return $this;
         }
     }
 
     /**
-     * Adds an external stylesheet
-     * 
-     * @param string $value 
+     * Merges the assets for the given method
+     *
+     * @param string $method The method to retrieve the current ArrayObject tha stores the requiredassets
+     * @param string $assetType The assets type (stylesheet/favascript)
+     * @param string $type The required type (internal/external)
+     * @return type
      */
-    public function addStylesheet($value)
+    protected function mergeAssets($method, $assetType, $type)
     {
-        if($value != "" && !in_array($value, $this->externalStylesheets))
-        {
-            if(basename($value) == $value)
-            {
-                $bundle = ($this->container->hasParameter('al.deploy_bundle')) ? $this->container->getParameter('al.deploy_bundle') : 'ThemeEngineBundle';
-                $targetFolder = ($this->container->hasParameter('al.deploy_bundle_css_folder')) ? $this->container->getParameter('al.deploy_bundle_css_folder') : 'css';
-                $bundleFolder = AlToolkit::retrieveBundleWebFolder($this->container, $bundle);
-                $fileName = $bundleFolder . '/' . $targetFolder . '/'. $value;
-            }
-            else
-            { 
-                // When the whole files in the folder are required, it is needed the path to the web folder
-                if(substr($value, strlen($value) - 1, 1) == '*')
-                {
-                    $bundleName = preg_match('/^@([\w]+)\//', $value, $match);
-                    $fileName = (isset($match[1])) ? AlToolkit::retrieveBundleWebFolder($this->container, $match[1]) . '/*' : '';
-                }
-                else
-                {
-                    $fileName = (strpos($value, 'bundles') === 0) ? $value : AlToolkit::locateResource($this->container, $value);
+        $templateAssets = $this->template->$method();
+        if(null !== $templateAssets) {
+            // Colects the blocks when parsed
+            $appsAssets = array();
+            $templateAssets = clone($templateAssets);
+            $blocks = $this->pageBlocks->getBlocks();
+            foreach ($blocks as $slotBlocks) {
+                foreach ($slotBlocks as $block) {
+                    $className = $block->getClassName();
+                    if (!in_array($className, $appsAssets)) {
+                        foreach ($this->parameterSchema as $parameterSchema) {
+                            $parameter = sprintf($parameterSchema, strtolower($className), $type, $assetType);
+                            $templateAssets->addRange(($this->container->hasParameter($parameter)) ? $this->container->getParameter($parameter) : array());
+                        }
+
+                        $appsAssets[] = $className;
+                    }
+
+                    $method = 'get'. ucfirst($type) . ucfirst($assetType);
+                    $method = substr($method, 0, strlen($method) - 1);
+                    $templateAssets->addRange(explode(',', $block->$method()));
                 }
             }
-            
-            $this->externalStylesheets[] = $fileName;
+
+            return $templateAssets;
         }
     }
 
     /**
-     * Adds an external javascript
-     * 
-     * @param string $value 
+     * Returns an array that contains the absolute path of each asset
+     *
+     * @param string $method The method to retrieve the current ArrayObject tha stores the requiredassets
+     * @param string $assetType The assets type (stylesheet/favascript)
+     * @param string $type The required type (internal/external)
+     * @return array
      */
-    public function addJavascript($value)
+    protected function getAssets($method, $assetType, $type)
     {
-        if($value != "" && !in_array($value, $this->externalJavascripts))
+        $templateAssets = $this->mergeAssets($method, $assetType, $type);
+        if(null === $templateAssets) return array();
+
+        $assets = array();
+        foreach($templateAssets as $asset)
         {
-            if(basename($value) == $value)
-            {
-                $bundle = ($this->container->hasParameter('al.deploy_bundle')) ? $this->container->getParameter('al.deploy_bundle') : 'ThemeEngineBundle';
-                $targetFolder = ($this->container->hasParameter('al.deploy_bundle_js_folder')) ? $this->container->getParameter('al.deploy_bundle_js_folder') : 'js';
-                $bundleFolder = AlToolkit::retrieveBundleWebFolder($this->container, $bundle);
-                $fileName = $bundleFolder . '/' . $targetFolder . '/'. $value;
-            }
-            else
-            { 
-                if(substr($value, strlen($value) - 1, 1) == '*')
-                {
-                    $bundleName = preg_match('/^@([\w]+)\//', $value, $match);
-                    $fileName = (isset($match[1])) ? AlToolkit::retrieveBundleWebFolder($this->container, $match[1]) . '/*' : '';
-                }
-                else
-                {
-                    $fileName = (strpos($value, 'bundles') === 0) ? $value : AlToolkit::locateResource($this->container, $value);
-                }
-            }
-            
-            $this->externalJavascripts[] = $fileName;
-        }
-    }
-    
-    /**
-     * Returns the content placed on the required slot
-     * 
-     * @param string    $slotName   The name of slot to retrieve the contents
-     * @return array 
-     */
-    public function getContents($slotName = null)
-    {
-        if(null === $slotName)
-        {
-            return $this->contents;
+            $assets[] = $asset->getAbsolutePath();
         }
 
-        // A non existent slot has been requested
-        if(null !== $this->templateSlots && !\array_key_exists($slotName, $this->getSlots()) && !array_key_exists($slotName, $this->contents))
-        {
-            throw new \InvalidArgumentException($this->container->get('translator')->trans('The %slotName% is not part of this template. You can add a new slot in the configure method of the template\'s slot definition, or remove the wrong one from the template itself', array('%slotName%' => $slotName)));
-        }
-
-        // The slot has any content inside
-        if(!\array_key_exists($slotName, $this->contents))
-        {
-            return null;
-        }
-        
-        return $this->contents[$slotName];
+        return $assets;
     }
 
-    /**
-     * Sets the contents for the given slots. The $values array is made as follows:
-     * 
-     *  array('slotname' => 
-     *              array(
-     *                  array([HtmlContent] => 'content1'), 
-     *                  array([HtmlContent] => 'content2'), 
-     *                  ..., 
-     *                  array([HtmlContent] => 'content[n]'),
-     *                  ),
-     *        'slotname1' => ... 
-     *         )
-     * 
-     * @param   array   $values  
-     * @param   type    $override  When true, overrides the contents on the slot whit the new ones
-     */
-    public function setContents(array $values, $override = false)
+
+/*
+    public function setMetaTitle($v)
     {
-        foreach($values as $slotName => $contents)
-        {
-            if(array_key_exists($slotName, $this->contents) && $override) unset($this->contents[$slotName]);
+        $this->metaTitle = $v;
+    }
 
-            if(null !== $contents)
-            {
-                foreach($contents as $content)
-                {
-                    $this->addContent($slotName, $content);
-                }
-            }
-            else
-            {
-                $this->contents[$slotName] = null;
-            }
-        }
-    }
-    
-    /**
-     * Clears the contents for the given slot
-     * 
-     * @param string    $slotName 
-     */
-    public function clearSlotContents($slotName)
+    public function getMetaTitle()
     {
-        $this->contents[$slotName] = array();
+        return $this->metaTitle;
     }
-    
-    /**
-     * Adds a content on the given slot
-     * 
-     * @param string    $slotName   The name of the slot to add the content
-     * @param array     $content    An array to pass the content. Eg. array('HtmlContent' => 'The content')
-     * @param type      $key        The contents' key. Contents are store in an array whose keys are the usual  
-     *                              array incremental integer, starting by zero. So if the slot has three contents,
-     *                              passing 1 as key will replace the second content
-     */
-    public function addContent($slotName, array $content, $key = null)
-    {
-        if(null !== $key && array_key_exists($key, $this->contents[$slotName]))
-        {
-            $this->contents[$slotName][$key] = $content;
-        }
-        else
-        {
-            $this->contents[$slotName][] = $content;
-        }
-    }
-    
-    /**
-     * Normalizes the paths of the assets saved inside the Resource/public folder, for the current bundle
-     * 
-     * @param type $assets
-     * @return string 
-     */
-    protected function setAssetsForWeb($assets)
-    {
-        $result = array(); 
-        foreach($assets as $asset)
-        {
-            $asset = AlToolkit::normalizePath($asset);
-            preg_match('/\/([\w]+Bundle)\/Resources\/public\/(.*)/', $asset, $match);
-            if(!empty($match))
-            {
-                $bundleFolder = AlToolkit::retrieveBundleWebFolder($this->container, $match[1]);
-                $fileName = $bundleFolder . '/' . $match[2];
 
-                $result[] = $fileName;
-            }
-            else
-            {
-                $result[] = $asset;
-            }
-        }
-        return $result;
-    }
-    
-    /**
-     * Sets up the page tree object for the current template
-     */
-    protected function setupPageTree()
+    public function setMetaDescription($v)
     {
-        if($this->themeName != '' && $this->templateName != '') {
-            
-            $templateName = $this->templateName;
-            $className = \sprintf('AlphaLemon\Theme\%s\Core\Slots\%s%sSlots', $this->themeName, $this->themeName, \ucfirst($templateName)); 
-            if(!\class_exists($className)) {
-                throw new \RuntimeException($this->container->get('translator')->trans('The class %className% does not exist. You must create a [ThemeName][TemplateName]Slots class for each template of your theme.', array('%className%' => $className)));
-            }
-            
-            $this->templateSlots = new $className($this->container);            
-            $theme = preg_replace('/bundle$/', '', strtolower($this->themeName));
-            
-            $param = sprintf('themes.%s_%s.internal_javascript', $theme, $templateName);
-            if($this->container->hasParameter($param)) {
-                $this->internalTemplateJavascript = $this->container->getParameter($param);
-                $this->appendInternalJavascript($this->internalTemplateJavascript);
-            }
-            
-            $param = sprintf('themes.%s_%s.internal_stylesheet', $theme, $templateName);
-            if($this->container->hasParameter($param)) {
-                $this->internalTemplateStylesheet = $this->container->getParameter($param);
-                $this->appendInternalStylesheet($this->internalTemplateStylesheet);
-            }
-            
-            $param = sprintf('themes.%s_%s.javascripts', $theme, $templateName);
-            if($this->container->hasParameter($param)) {
-                $this->externalTemplateJavascripts = $this->container->getParameter($param);
-                $this->addJavascripts($this->externalTemplateJavascripts);
-            }
-            
-            $param = sprintf('themes.%s_%s.stylesheets', $theme, $templateName);
-            if($this->container->hasParameter($param)) {
-                $this->externalTemplateStylesheets = $this->container->getParameter($param);
-                $this->addStylesheets($this->externalTemplateStylesheets);
-            }
-            
-            $kernel = $this->container->get('kernel');
-            foreach ($kernel->getBundles() as $bundle)
-            {
-                $bundleName = preg_replace('/bundle$/', '', strtolower($bundle->getName()));
-                
-                $param = sprintf('%s.javascripts', $bundleName); 
-                if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
-
-                $param = sprintf('%s.stylesheets', $bundleName); 
-                if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
-                
-                $param = sprintf('%s_%s.javascripts', $bundleName, $templateName); 
-                if($this->container->hasParameter($param)) $this->addJavascripts($this->container->getParameter($param));
-
-                $param = sprintf('%s_%s.stylesheets', $bundleName, $templateName); 
-                if($this->container->hasParameter($param)) $this->addStylesheets($this->container->getParameter($param));
-            }
-        }
+        $this->metaDescription = $v;
     }
+
+    public function getMetaDescription()
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaKeywords($v)
+    {
+        $this->metaKeywords = $v;
+    }
+
+    public function getMetaKeywords()
+    {
+        return $this->metaKeywords;
+    }*/
+
+
 }

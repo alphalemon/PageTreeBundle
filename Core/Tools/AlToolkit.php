@@ -69,6 +69,8 @@ class AlToolkit
     /**
      * Translates a message from the container
      * 
+     * @deprecated
+     * 
      * @param ContainerInterface $container
      * @param string $message
      * @param array $tokens
@@ -97,14 +99,15 @@ class AlToolkit
      * 
      * @return string 
      */
-    public static function retrieveBundleWebFolder(ContainerInterface $container, $bundleName)
+    public static function retrieveBundleWebFolder(KernelInterface $kernel, $bundleName)
     {
         $bundleDir = null;
-        foreach ($container->get('kernel')->getBundles() as $bundle)
+        foreach ($kernel->getBundles() as $bundle)
         {
-            if(strpos($bundle->getName(), $bundleName) !== false)
+            $name = $bundle->getName();
+            if(strpos($name, $bundleName) !== false)
             {
-                $bundleDir = 'bundles/'.preg_replace('/bundle$/', '', strtolower($bundle->getName()));
+                $bundleDir = 'bundles/'.preg_replace('/bundle$/', '', strtolower($name));
                 break;
             }
         }
@@ -120,26 +123,18 @@ class AlToolkit
      * 
      * @return string  , $forceRelativePath = false $forceRelativePath && 
      */
-    public static function locateResource(ContainerInterface $container, $path)
+    public static function locateResource(KernelInterface $kernel, $path)
     {
         if(\substr($path, 0, 1) != '@') $path = '@' . $path;
         
         $fullPath = "";
         if('@' === \substr($path, 0, 1))
         {
-            if($container->has('kernel'))
+            try
             {
-                $kernel = $container->get('kernel');
-                try
-                {
-                    $fullPath = $kernel->locateResource($path); 
-                }
-                catch(\InvalidArgumentException $e)
-                {
-                    return false;
-                }
+                $fullPath = $kernel->locateResource($path); 
             }
-            else
+            catch(\InvalidArgumentException $e)
             {
                 return false;
             }
