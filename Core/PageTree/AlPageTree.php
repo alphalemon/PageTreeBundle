@@ -136,12 +136,12 @@ class AlPageTree
     }
 
     /**
-     * Defines the methods to manage assets and metatags
+     * Catches the methods to manage assets and metatags
      *
      * @param string $name the method name
-     * @param array $params the values to pass to the called method
+     * @param mixed $params the values to pass to the called method
      *
-     * @return \AlphaLemon\PageTreeBundle\Core\PageTree\AlPageTree
+     * @return mixed Depends on method called
      */
     public function __call($name, $params)
     {
@@ -155,19 +155,21 @@ class AlPageTree
             return implode("", $this->getAssets($matches[0], strtolower($matches[3]), strtolower($matches[2])));
         }
 
-        if(preg_match('/^(get)?(Meta)?([Title|Description|Keywords])$/', $name, $matches))
+        if(preg_match('/^(get)?(Meta)?([Title|Description|Keywords]+)$/', $name, $matches))
         {
             $property = strtolower($matches[2]) . $matches[3];
 
             return $this->$property;
         }
 
-        if(preg_match('/^(set)?(Meta)?([Title|Description|Keywords])$/', $name, $matches))
+        if(preg_match('/^(set)?(Meta)?([Title|Description|Keywords]+)$/', $name, $matches))
         {
             $this->$property = $params[0];
 
             return $this;
         }
+
+        throw new \RuntimeException('Call to undefined method: ' . $name);
     }
 
     /**
@@ -188,15 +190,8 @@ class AlPageTree
             $blocks = $this->pageBlocks->getBlocks();
             foreach ($blocks as $slotBlocks) {
                 foreach ($slotBlocks as $block) {
-                    $className = $block->getClassName();
-                    if (!in_array($className, $appsAssets)) {
-                        foreach ($this->parameterSchema as $parameterSchema) {
-                            $parameter = sprintf($parameterSchema, strtolower($className), $type, $assetType);
-                            $templateAssets->addRange(($this->container->hasParameter($parameter)) ? $this->container->getParameter($parameter) : array());
-                        }
 
-                        $appsAssets[] = $className;
-                    }
+                    // TODO
 
                     $method = 'get'. ucfirst($type) . ucfirst($assetType);
                     $method = substr($method, 0, strlen($method) - 1);
@@ -212,55 +207,25 @@ class AlPageTree
      * Returns an array that contains the absolute path of each asset
      *
      * @param string $method The method to retrieve the current ArrayObject tha stores the requiredassets
-     * @param string $assetType The assets type (stylesheet/favascript)
+     * @param string $assetType The assets type (stylesheet/javascript)
      * @param string $type The required type (internal/external)
      * @return array
      */
     protected function getAssets($method, $assetType, $type)
     {
         $templateAssets = $this->mergeAssets($method, $assetType, $type);
-        if(null === $templateAssets) return array();
-
+        if(null === $templateAssets) {
+            return array();
+        }
+        
         $assets = array();
         foreach($templateAssets as $asset)
         {
-            $assets[] = $asset->getAbsolutePath();
+            $absolutePath = $asset->getAbsolutePath();
+            $originalAsset = $asset->getAsset();
+            $assets[] = ($type == 'external') ? (empty($absolutePath)) ? $originalAsset : $absolutePath : $originalAsset;
         }
-
+        
         return $assets;
     }
-
-
-/*
-    public function setMetaTitle($v)
-    {
-        $this->metaTitle = $v;
-    }
-
-    public function getMetaTitle()
-    {
-        return $this->metaTitle;
-    }
-
-    public function setMetaDescription($v)
-    {
-        $this->metaDescription = $v;
-    }
-
-    public function getMetaDescription()
-    {
-        return $this->metaDescription;
-    }
-
-    public function setMetaKeywords($v)
-    {
-        $this->metaKeywords = $v;
-    }
-
-    public function getMetaKeywords()
-    {
-        return $this->metaKeywords;
-    }*/
-
-
 }
