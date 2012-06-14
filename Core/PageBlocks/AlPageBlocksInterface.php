@@ -33,11 +33,11 @@ interface AlPageBlocksInterface
      * saved at the key identified by the position is edited
      *
      * @param string $slotName
-     * @param array $content
+     * @param array $values
      * @param int $position The first element has a position equals to 0
      * @throws \InvalidArgumentException
      */
-    public function add($slotName, array $content, $position = null);
+    public function add($slotName, array $values, $position = null);
 
     /**
      * Adds a range of blocks.
@@ -66,11 +66,21 @@ interface AlPageBlocksInterface
     public function clearSlotBlocks($slotName);
 
     /**
-     * Clears the all the saved blocks
+     * Clears the blocks for the given slot
+     */
+    public function clearSlots();
+
+    /**
+     * Removes the given slot
      *
      * @param string    $slotName
      */
-    public function clearBlocks();
+    public function removeSlot($slotName);
+
+    /**
+     * Clears the all the slots
+     */
+    public function removeSlots();
 
     /**
      * Returns all the page's blocks

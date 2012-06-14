@@ -19,7 +19,7 @@ namespace AlphaLemon\PageTreeBundle\Core\PageBlocks;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use AlphaLemon\AlphaLemonCmsBundle\Core\Model\Entities\BlockModelInterface;
-use AlphaLemon\AlphaLemonCmsBundle\Core\Exception\Content\General;
+use AlphaLemon\PageTreeBundle\Core\Exception\General;
 
 /**
  * AlPageBlocks is the object responsible to manage the blocks on a web page. A block on a web
@@ -34,16 +34,16 @@ use AlphaLemon\AlphaLemonCmsBundle\Core\Exception\Content\General;
 class AlPageBlocks implements AlPageBlocksInterface
 {
     protected $blocks = array();
-    protected $validContentParams = array('HtmlContent' => '');
+    protected $requiredParamsOptions = array('HtmlContent' => '');
 
     /**
      * {@inheritdoc}
      */
     public function add($slotName, array $values, $position = null)
     {
-        $value = array_diff($this->validContentParams, $values);
+        $value = array_intersect_key($values, $this->requiredParamsOptions);
         if (empty($value)) {
-            throw new \InvalidArgumentException('The block requires a key ');
+            throw new General\AnyValidParameterGivenException(sprintf('Any valid option have been given. Add was expecting "%s" but receives "%s"', implode(',', array_keys($this->requiredParamsOptions)), implode(',', array_keys($values))));
         }
 
         if(null !== $position && array_key_exists($position, $this->blocks[$slotName]))
@@ -71,7 +71,7 @@ class AlPageBlocks implements AlPageBlocksInterface
             {
                 foreach($contents as $content)
                 {
-                    $this->addBlock($slotName, $content);
+                    $this->add($slotName, $content);
                 }
             }
             else
@@ -86,13 +86,35 @@ class AlPageBlocks implements AlPageBlocksInterface
      */
     public function clearSlotBlocks($slotName)
     {
+        $this->checkSlotExists($slotName);
+
         $this->blocks[$slotName] = array();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function clearBlocks()
+    public function clearSlots()
+    {
+        foreach ($this->blocks as $slotName => $block) {
+            $this->clearSlotBlocks($slotName);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeSlot($slotName)
+    {
+        $this->checkSlotExists($slotName);
+
+        unset($this->blocks[$slotName]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeSlots()
     {
         $this->blocks = array();
     }
@@ -111,5 +133,12 @@ class AlPageBlocks implements AlPageBlocksInterface
     public function getSlotBlocks($slotName)
     {
         return (array_key_exists($slotName, $this->blocks)) ? $this->blocks[$slotName] : array();
+    }
+
+    protected function checkSlotExists($slotName)
+    {
+        if (!array_key_exists($slotName, $this->blocks)) {
+            throw new General\InvalidParameterException(sprintf('The slot "%s" does not exist. Nothing to clear', $slotName));
+        }
     }
 }
