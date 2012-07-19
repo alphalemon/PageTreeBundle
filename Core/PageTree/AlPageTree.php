@@ -62,10 +62,9 @@ class AlPageTree
      * @param AlTemplate $template
      * @param AlPageBlocksInterface $pageBlocks
      */
-    public function __construct(ContainerInterface $container, AlTemplate $template, AlPageBlocksInterface $pageBlocks)
+    public function __construct(ContainerInterface $container, AlPageBlocksInterface $pageBlocks = null)
     {
         $this->container = $container;
-        $this->template = $template;
         $this->pageBlocks = $pageBlocks;
     }
 
@@ -217,7 +216,7 @@ class AlPageTree
         if(null === $templateAssets) {
             return array();
         }
-        
+
         $assets = array();
         foreach($templateAssets as $asset)
         {
@@ -225,7 +224,7 @@ class AlPageTree
             $originalAsset = $asset->getAsset();
             $assets[] = ($type == 'external') ? (empty($absolutePath)) ? $originalAsset : $absolutePath : $originalAsset;
         }
-        
+
         return $assets;
     }
 }

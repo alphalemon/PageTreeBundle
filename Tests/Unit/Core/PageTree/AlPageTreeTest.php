@@ -40,7 +40,7 @@ class AlPageTreeTest extends TestCase
                                     ->disableOriginalConstructor()
                                     ->setMethods(array('getExternalStylesheets'))
                                     ->getMock();
-        /*
+        /*  
         $this->template->expects($this->once())
             ->method('getThemeName')
             ->will($this->returnValue('BusinessWebsiteThemeBundle'));
@@ -53,7 +53,7 @@ class AlPageTreeTest extends TestCase
                                     ->disableOriginalConstructor()
                                     ->getMock();
 
-        $this->pageTree = new AlPageTree($this->container, $this->template, $this->pageBlocks);
+        $this->pageTree = new AlPageTree($this->container, $this->pageBlocks);
     }
 
     public function testBlockIsNotAddedWhenGivenValuesDoesNotContainAnyValidOptionParam()
