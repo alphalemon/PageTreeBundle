@@ -20,4 +20,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class AlphaLemonPageTreeBundle extends Bundle
 {
+  public function build(ContainerBuilder $container)
+    {
+
+        throw new \RuntimeException("This bundle has been deprecated and moved to ThemeEngineBundle. Please use that bundle instead of this one")
+    }
 }
